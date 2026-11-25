@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: freight
+      POSTGRES_USER: freight
+      POSTGRES_PASSWORD: freight
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U freight -d freight"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  app:
+    profiles: ["app"]
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/freight
+      DB_USER: freight
+      DB_PASSWORD: freight
+    ports: ["8080:8080"]
+  # Real yol mesafesi üçün (sonra): OSRM serveri, Azərbaycan xəritəsi və yük maşını profili ilə
+  # osrm:
+  #   image: osrm/osrm-backend
+  #   command: osrm-routed --algorithm mld /data/azerbaijan.osrm
+  #   volumes: ["./infra/osrm:/data"]
+  #   ports: ["5000:5000"]
+volumes:
+  pgdata:

@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: freight-dispatch
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/freight}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:Ilqar2002@}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+routing:
+  provider: ${ROUTING_PROVIDER:haversine}   # haversine | osrm
+  osrm-url: ${OSRM_URL:http://localhost:5000}
+  road-factor: 1.3
+  average-speed-kmh: 60
+
+dispatch:
+  candidate-limit: 10
+  max-position-age-minutes: 15
+  waste-penalty-per-ton: 8
+  urgent-waste-penalty-per-ton: 2
+  urgent-minutes-weight: 60
+  replacement-retry-seconds: 30   # boş maşın tapılmayanda təkrar axtarış fasiləsi
+  require-driver: true            # false = sürücüsüz maşın da təyinata yararlı sayılır
+
+driver:
+  session-hours: 12
+
+customer:
+  session-hours: 24
+
+assistant:                        # müştəri köməkçisi (DeepSeek)
+  provider: ${ASSISTANT_PROVIDER:deepseek}   # anthropic | deepseek
+  api-key: ${ASSISTANT_API_KEY:sk-df0287d24d6447458392a78ebb2d47bc}
+  model: ${ASSISTANT_MODEL:}                  # boş = deepseek-chat
+  api-url: ${ASSISTANT_API_URL:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

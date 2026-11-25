@@ -1,0 +1,6 @@
+# Demo məlumatı yükləyir və GPS yaşı limitini yumşaldır (yalnız lokal işləmə üçün)
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed
+dispatch:
+  max-position-age-minutes: 525600

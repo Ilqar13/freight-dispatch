@@ -1,0 +1,108 @@
+### Maşınlar (səhifələnmiş)
+GET http://localhost:8080/api/truck?status=FREE&page=0&size=50&sort=capacityTons,desc
+
+### Yeni sifariş: 18 t quru yük, Şəki (təcili deyil)
+POST http://localhost:8080/api/order
+Content-Type: application/json
+
+{ "customerName": "Nümunə MMC", "cargoType": "DRY_GOODS", "tons": 18,
+  "destAddress": "Şəki", "lat": 41.19, "lon": 47.17, "urgent": false }
+
+### Namizəd maşınlar və səbəblər (sifariş nömrəsi 1)
+POST http://localhost:8080/api/order/1/dispatch
+
+### Avtomatik təyinat
+POST http://localhost:8080/api/order/1/assign
+
+### Operator maşını özü seçir
+POST http://localhost:8080/api/order/1/assign
+Content-Type: application/json
+X-User: operator1
+
+{ "truckId": 2 }
+
+### GPS yeniləməsi
+PUT http://localhost:8080/api/truck/1/position
+Content-Type: application/json
+
+{ "lat": 40.45, "lon": 49.80 }
+
+### Sürücü yola çıxır (IN_TRANSIT)
+PUT http://localhost:8080/api/order/1/status
+Content-Type: application/json
+
+{ "status": "IN_TRANSIT" }
+
+### Sürücü reysi bitirir (DELIVERED — maşın avtomatik boşalır)
+PUT http://localhost:8080/api/order/1/status
+Content-Type: application/json
+
+{ "status": "DELIVERED" }
+
+### Qəza: yük hovuza qaytarılır
+PUT http://localhost:8080/api/order/1/status
+Content-Type: application/json
+
+{ "status": "CREATED", "reason": "Qəza" }
+
+### Maşını xidmətdən çıxar (qəza/nasazlıq)
+PUT http://localhost:8080/api/truck/1/status
+Content-Type: application/json
+
+{ "status": "MAINTENANCE" }
+
+### Maşını xidmətə qaytar
+PUT http://localhost:8080/api/truck/1/status
+Content-Type: application/json
+
+{ "status": "FREE" }
+
+### Yükü başqa sürücüyə ötür (köhnə maşın xidmətdən çıxarılır)
+POST http://localhost:8080/api/order/1/transfer
+Content-Type: application/json
+X-User: driver-10-AA-166
+
+{ "truckId": 2, "outOfService": true, "reason": "Yolda nasazlıq" }
+
+### Maşının aktiv reysləri (sürücü portalı)
+GET http://localhost:8080/api/truck/2/orders
+
+
+### --- Sürücü portalı ---
+### Sürücü yarat (dispetçer)
+POST http://localhost:8080/api/drivers
+Content-Type: application/json
+
+{ "fullName": "Əli Məmmədov", "phone": "+994501234567", "pin": "1234", "truckId": 1 }
+
+### Giriş
+POST http://localhost:8080/api/driver/login
+Content-Type: application/json
+
+{ "phone": "+994501234567", "pin": "1234" }
+
+### Texniki problem (token-i yuxarıdakı cavabdan götür)
+POST http://localhost:8080/api/driver/orders/1/breakdown
+Content-Type: application/json
+X-Driver-Token: <token>
+
+{ "type": "ENGINE", "description": "Mühərrik qızdı" }
+
+### Nasazlıqlar (dispetçer)
+GET http://localhost:8080/api/incident?status=AWAITING_TRUCK
+
+### ---- Reyestr (V103) ----
+### Müştəri qeydiyyatı
+POST http://localhost:8080/api/customer/register
+Content-Type: application/json
+
+{"customerType":"COMPANY","name":"Aztrade MMC","taxId":"1234567890","contactName":"Ali Əliyev","phone":"+994551112233","password":"Parol1234"}
+
+### Müştəri girişi
+POST http://localhost:8080/api/customer/login
+Content-Type: application/json
+
+{"phone":"+994551112233","password":"Parol1234"}
+
+### Dispetçer: təsdiq gözləyən müştərilər
+GET http://localhost:8080/api/customers?status=PENDING
